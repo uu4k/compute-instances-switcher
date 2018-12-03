@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "StackdriverIncident",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "switch",
+        "target"
+    ],
+    "properties": {
+        "switch": {
+            "type": "string",
+            "enum": [
+                "on",
+                "off"
+            ]
+        },
+        "target": {
+            "type": "string"
+        }
+    }
+}

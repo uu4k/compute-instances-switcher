@@ -1,0 +1,10 @@
+.gcloudignore
+.git
+.gitignore
+
+__pycache__
+.pytest_cache
+*.md
+test_*.py
+
+deploy.sh
