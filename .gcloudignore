@@ -8,3 +8,4 @@ __pycache__
 test_*.py
 
 deploy.sh
+.python-version

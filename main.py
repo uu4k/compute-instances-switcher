@@ -17,7 +17,7 @@ def switch_compute_instances(data, context):
     if 'data' not in data:
         sys.exit(1)
 
-    payload = json.load(base64.b64decode(data['data']).decode('utf-8'))
+    payload = json.loads(base64.b64decode(data['data']).decode('utf-8'))
 
     try:
         validate(payload, JSON_SCHEMA)
@@ -30,7 +30,7 @@ def switch_compute_instances(data, context):
     target = payload['target']
 
     compute = googleapiclient.discovery.build('compute', 'v1')
-    switcher = new Switcher(compute, PROJECT)
+    switcher = Switcher(compute, PROJECT)
 
     if switch == switcher.ON:
         switcher.on(target)
@@ -48,30 +48,35 @@ class Switcher:
         self.project = project
 
     def on(self, target):
-        # filter構築
         filter = self.__create_filter(self.ON, target)
 
-        # instances取得
         instances = self.__list_instances(filter)
 
-        # 開始
+        for instance in instances:
+            self.compute.instances().start(
+                project=self.project, zone=self.__get_value_from_url_resource(instance['zone']), instance=instance['name']).execute()
 
     def off(self, target):
-        # filter構築
         filter = self.__create_filter(self.OFF, target)
 
-        # instances取得
         instances = self.__list_instances(filter)
 
-        # 開始
+        for instance in instances:
+            self.compute.instances().stop(
+                project=self.project, zone=self.__get_value_from_url_resource(instance['zone']), instance=instance['name']).execute()
 
     def __list_instances(self, filter):
         zones = self.__list_zones()
+
+        items = []
         for zone in zones:
             result = self.compute.instances().list(
                 project=self.project, zone=zone['name'], filter=filter).execute()
 
-        return result['items'] if 'items' in result else []
+            if 'items' in result:
+                items.extend(result['items'])
+
+        return items
 
     def __list_zones(self):
         result = self.compute.zones().list(project=self.project).execute()
@@ -86,3 +91,7 @@ class Switcher:
             filter += ' status=running'
 
         return filter
+
+    def __get_value_from_url_resource(self, url):
+        values = url.split('/')
+        return values[len(values)-1]

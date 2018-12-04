@@ -1,2 +1,2 @@
 #!/bin/bash
-gcloud beta functions deploy switch_compute_instances --trigger-pubsub --runtime python37
+gcloud functions deploy switch_compute_instances --runtime python37 --trigger-topic "switcher"
